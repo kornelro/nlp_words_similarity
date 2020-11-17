@@ -1,0 +1,975 @@
+Help on module plwn.bases in plwn:
+
+NAME
+    plwn.bases - Base, abstract classes for plWordNet objects.
+
+DESCRIPTION
+    Implementing common functionality independent of structures
+    holding the data itself.
+
+CLASSES
+    builtins.object
+        LexicalUnitBase
+        PLWordNetBase
+        RelationInfoBase
+        SynsetBase
+    builtins.tuple(builtins.object)
+        RelationEdge
+    
+    class LexicalUnitBase(builtins.object)
+     |  Encapsulates data associated with a plWordNet lexical unit.
+     |  
+     |  Lexical units represent terms in the language. Each lexical unit is
+     |  uniquely identified by its lemma (base written form), part of speech
+     |  (verb, noun, adjective or adverb) and variant (a number differentiating
+     |  between homonyms).
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |      Return self==value.
+     |  
+     |  __ge__(self, other)
+     |      Return self>=value.
+     |  
+     |  __gt__(self, other)
+     |      Return self>value.
+     |  
+     |  __hash__(self)
+     |      Return hash(self).
+     |  
+     |  __le__(self, other)
+     |      Return self<=value.
+     |  
+     |  __lt__(self, other)
+     |      Return self<value.
+     |  
+     |  __ne__(self, other)
+     |      Return self!=value.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  __str__(self)
+     |      Return str(self).
+     |  
+     |  related(self, relation_id=None)
+     |      Get an iterable of :class:`LexicalUnitBase` instances.
+     |      
+     |      That are connected to this lexical unit by outbound edges
+     |      of lexical relation type identified by ``relation_id``.
+     |      
+     |      ``relation_id`` can be any lexical relation type identifier (see
+     |      :class:`RelationInfoBase`), a collection of relation types identifiers,
+     |      or ``None``, in which case lexical units related to this one by any
+     |      relation are selected.
+     |      
+     |      Note, that distinction between any relations that fit the
+     |      ``relation_id`` query is lost. Use :meth:`.related_pairs` if it's
+     |      needed.
+     |      
+     |      Raises :exc:`~plwn.exceptions.InvalidRelationTypeException` if
+     |      ``relation_id`` does not refer to an existing lexical relation type.
+     |  
+     |  related_pairs(self, relation_id)
+     |      Like :meth:`.related`.
+     |      
+     |      But return an iterable of pairs
+     |      ``(<relation info>, <relation target unit>)``.
+     |  
+     |  to_dict(self, include_related=True)
+     |      Create a JSON-compatible dictionary.
+     |      
+     |      With all the public properties of the lexical unit.
+     |      
+     |      Enums are converted to their values and all collections are converted
+     |      to tuples.
+     |      
+     |      Property :attr:`.relations` is omitted, as it would be redundant when
+     |      all related lexical units can be enumerated when ``include_related``
+     |      is ``True``.
+     |      
+     |      An additional ``str`` member is present in the dictionary; its value is
+     |      the string representation of the lexical unit.
+     |      
+     |      If ``include_related`` is ``True`` (the default), the dictionary will
+     |      contain an additional ``related`` member, representing lexical units
+     |      related to this one, in the following format::
+     |      
+     |          {
+     |              <lexical relation full name>: (
+     |                  (<relation target id>, <relation target string form>),
+     |                  ...
+     |              ),
+     |              ...
+     |          }
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties defined here:
+     |  
+     |  definition
+     |      Textual description of the lexical unit's meaning.
+     |      
+     |      May be ``None``.
+     |  
+     |  domain
+     |      plWordNet domain the lexical unit belongs to.
+     |      
+     |      One of enumerated constants of :class:`~plwn.enums.Domain`.
+     |  
+     |  emotion_example
+     |      Example of an emotionally charged sentence using the lexical unit.
+     |  
+     |  emotion_example_secondary
+     |      ``Optional[str]``.
+     |      
+     |      This property is not ``None`` only if :attr:`.emotion_markedness` is
+     |      :attr:`~plwn.enums.EmotionMarkedness.amb`. In such case,
+     |      :attr:`.emotion_example` will be an example of a positively charged
+     |      sentence, and this one will be a negatively charged sentence.
+     |  
+     |  emotion_markedness
+     |      Markedness of emotions associated with the lexical unit.
+     |      
+     |      May be ``None`` if the unit has no emotional markedness.
+     |      
+     |      If this property is ``None`` then all other ``emotion_*`` properties
+     |      will be ``None`` or empty collections.
+     |  
+     |  emotion_names
+     |      Tuple of names of emotions associated with this lexical unit.
+     |  
+     |  emotion_valuations
+     |      Tuple of valuations of emotions associated with this lexical unit.
+     |  
+     |  external_links
+     |      URLs linking to web pages describing the meaning of the lexical unit.
+     |      
+     |      May be an empty collection.
+     |  
+     |  id
+     |      The internal, numeric identifier of the lexical units in plWordNet.
+     |      
+     |      It is unique among all lexical units.
+     |      
+     |      If this identifier is passed to
+     |      :meth:`PLWordNetBase.lexical_unit_by_id`, it would return this
+     |      :class:`LexicalUnitBase` object.
+     |  
+     |  is_emotional
+     |      Boolean value informing if the lexical unit has emotional affinity.
+     |      
+     |      If it is ``True``, then the lexical unit describes a term that has an
+     |      emotional load, and ``emotion_*`` properties will have meaningful
+     |      values, describing the affinity.
+     |      
+     |      If it is ``False``, then the unit is emotionally neutral. All
+     |      ``emotion_*`` properties will be ``None`` or empty collections.
+     |      
+     |      This property can also be ``None``, which means that the unit has not
+     |      (yet) been evaluated with regards to emotional affinity. All
+     |      ``emotion_*`` properties are the same as when it's ``False``.
+     |  
+     |  is_english
+     |      Check whether unit is English by its PoS.
+     |  
+     |  is_polish
+     |      Check whether unit is Polish by its PoS.
+     |  
+     |  lemma
+     |      Lemma of the unit; its basic text form.
+     |  
+     |  pos
+     |      Part of speech of the unit.
+     |      
+     |      One of enumerated constants of :class:`~plwn.enums.PoS`.
+     |  
+     |  relations
+     |      Tuple of :class:`RelationInfoBase` instances.
+     |      
+     |      Containing types of distinct relations that have
+     |      outbound edges from this lexical unit.
+     |      
+     |      Relations are returned in an arbitrary order.
+     |      
+     |      The tuple is special: methods for checking membership accept all
+     |      possible representations of a relation type (see
+     |      :meth:`RelationInfoBase.eqv`).
+     |  
+     |  sense_examples
+     |      Text fragments.
+     |      
+     |      That show how the lexical unit is used in the language.
+     |      
+     |      May be an empty tuple.
+     |  
+     |  sense_examples_sources
+     |      Symbolic representations of sources.
+     |      
+     |      From which the sense examples were taken.
+     |      
+     |      The symbols are short strings, defined by plWordNet.
+     |      
+     |      This tuples has the same length as :attr:`.sense_examples`, and is
+     |      aligned by index (for example, the source of ``sense_examples[3]`` is
+     |      at ``sense_examples_sources[3]``).
+     |      
+     |      To get pairs of examples with their sources, use
+     |      ``zip(sense_examples, sense_examples_sources)``
+     |  
+     |  synset
+     |      An instance of :class:`SynsetBase`.
+     |      
+     |      Representing the synset this unit belongs to.
+     |  
+     |  usage_notes
+     |      Symbols.
+     |      
+     |      Denoting certain properties of how the lexical unit is used in
+     |      the language.
+     |      
+     |      The symbols are short strings, defined by plWordNet. For example,
+     |      ``daw.`` means that the word is considered dated.
+     |      
+     |      May be an empty collection.
+     |  
+     |  variant
+     |      Ordinal number to differentiate between meanings of homonyms.
+     |      
+     |      Numbering starts at 1.
+     |  
+     |  verb_aspect
+     |      Aspect of a verb.
+     |      
+     |      Of the enumerated values of :class:`~plwn.enums.VerbAspect`.
+     |      
+     |      May be ``None`` if the unit is not a verb, or had no aspect assigned.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __abstractmethods__ = frozenset({'definition', 'domain', 'emotion_exam...
+    
+    class PLWordNetBase(builtins.object)
+     |  The primary object providing data from plWordNet.
+     |  
+     |  Allows retrieving synsets, lexical units, and other informative objects.
+     |  
+     |  Methods defined here:
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  close(self)
+     |      Perform cleanup operations.
+     |      
+     |      After using the :class:`PLWordNetBase` object.
+     |      
+     |      By default, this method does nothing and should be overridden by a
+     |      subclass if necessary. It should still always be called, since any
+     |      :class:`PLWordNetBase` subclass may create any kind of temporary
+     |      resources.
+     |      
+     |      After calling this method, this instance and any ones linked with it
+     |      (:class:`SynsetBase`, :class:`LexicalUnitBase`, etc.) may become
+     |      invalid and should not be used.
+     |  
+     |  lexical_relation_edges(self, include=None, exclude=None)
+     |      Get an iterable of lexical unit relation instances from plWordNet.
+     |      
+     |      As represented by :class:`RelationEdge`.
+     |      
+     |      This method works like :meth:`.synset_relation_edges`, but for lexical
+     |      units and relation types. There is no ``skip_artificial``, since there
+     |      are no artificial lexical units.
+     |  
+     |  lexical_unit(self, lemma, pos, variant)
+     |      Like :meth:`.lexical_units`.
+     |      
+     |      But either return a single lexical unit or
+     |      raise :exc:`~plwn.exceptions.LexicalUnitNotFound`.
+     |      
+     |      All parameters are required, to ensure that the query could only match
+     |      a single lexical unit.
+     |  
+     |  lexical_unit_by_id(self, id_)
+     |      Select a lexical unit using its internal, numeric ID.
+     |      
+     |      If there is no lexical unit with the given ID, raise
+     |      :exc:`~plwn.exceptions.LexicalUnitNotFound`.
+     |      
+     |      This is the fastest method to get a particular :class:`LexicalUnitBase`
+     |      object.
+     |  
+     |  lexical_units(self, lemma=None, pos=None, variant=None)
+     |      Select lexical units from plWordNet based on combination of criteria.
+     |      
+     |      It's possible to specify the lemma, part of speech and variant of the
+     |      units this method should yield. If a parameter value is omitted, any
+     |      value matches. Conversely, a call of ``lexical_units()`` will return
+     |      an iterable of all lexical units in plWordNet. If no lexical unit
+     |      matches the query, returns an empty iterable.
+     |      
+     |      The parameter ``lemma`` is an unicode string, ``variant`` is an
+     |      integer, and ``pos`` is an enumerated value of
+     |      :class:`~plwn.enums.PoS`.
+     |  
+     |  relations_info(self, name=None, kind=None)
+     |      Get an iterable of :class:`RelationInfoBase` instances.
+     |      
+     |      Matching the query defined by parameters.
+     |      
+     |      ``name`` is a string naming a relation (see
+     |      :class:`RelationInfoBase`). If it names a "parent", all its children
+     |      are selected.
+     |      
+     |      ``kind`` is an enumerated value of
+     |      :class:`~plwn.enums.RelationKind`.
+     |      
+     |      Any parameter that's not passed matches any relation type.
+     |      As such, a call of ``relations_info()`` will select all relation types
+     |      in plWordNet.
+     |  
+     |  synset(self, lemma, pos, variant)
+     |      Like :meth:`.synsets`.
+     |      
+     |      But either return a single synset or raise
+     |      :exc:`~plwn.exceptions.SynsetNotFound`.
+     |      
+     |      All parameters are required, to ensure that the query could only match
+     |      a single synset.
+     |  
+     |  synset_by_id(self, id_)
+     |      Select a synset using its internal, numeric ID.
+     |      
+     |      If there is no synset with the given ID, raise
+     |      :exc:`~plwn.exceptions.SynsetNotFound`.
+     |      
+     |      This is the fastest method to get a particular :class:`SynsetBase`
+     |      object.
+     |  
+     |  synset_relation_edges(self, include=None, exclude=None, skip_artificial=True)
+     |      Get an iterable of synset relation instances from plWordNet.
+     |      
+     |      As represented by :class:`RelationEdge`.
+     |      
+     |      ``include`` and ``exclude`` are containers of relation type
+     |      identifiers (see :class:`RelationInfoBase`). If ``include`` is not
+     |      ``None``, then only instances of relations in it are included in the
+     |      result. If ``exclude`` is not ``None``, then all relations in it are
+     |      omitted from the result. If both are ``None``, all relations are
+     |      selected.
+     |      
+     |      If ``skip_artificial`` is ``True`` (the default), then artificial
+     |      synsets (see :attr:`SynsetBase.is_artificial`) are "skipped over": new
+     |      relation edges are created to replace ones ending or staring in an
+     |      artificial synset, and connecting neighbouring synsets if they have
+     |      relations directed like this::
+     |      
+     |          .-------.  Rel 1
+     |          | Syn D |-----------------.
+     |          '-------'                 |
+     |                                    v
+     |                            .--------------.
+     |          .-------.  Rel 1  |    Syn B     |  Rel 1  .-------.
+     |          | Syn A |-------->| [artificial] |-------->| Syn E |
+     |          '-------'         '--------------'         '-------'
+     |                                    ^
+     |                                    |
+     |          .-------.  Rel 2          |
+     |          | Syn C |-----------------'
+     |          '-------'
+     |      
+     |      
+     |          .-------.  Rel 1
+     |          | Syn D |-----------------.
+     |          '-------'                 v
+     |                                .-------.
+     |                                | Syn E |
+     |                                '-------'
+     |          .-------.  Rel 1          ^
+     |          | Syn A |-----------------'
+     |          '-------'
+     |      
+     |      ``Syn C`` is dropped, since there's no instance of ``Rel 1`` directed
+     |      outwards from the skipped artificial ``Syn B``.
+     |  
+     |  synsets(self, lemma=None, pos=None, variant=None)
+     |      Select synsets from plWordNet based on combination of criteria.
+     |      
+     |      This method works just like :meth:`.lexical_units`, but returns an
+     |      iterable of distinct synsets that own the lexical units selected by
+     |      the query.
+     |  
+     |  to_graphml(self, out_file, graph_type='synset', include_attributes=False, prefix_ids=False, included_synset_attributes=None, excluded_synset_attributes=None, included_lexical_unit_attributes=None, excluded_lexical_unit_attributes=None, included_synset_relations=None, excluded_synset_relations=None, included_lexical_unit_relations=None, excluded_lexical_unit_relations=None, included_synset_nodes=None, excluded_synset_nodes=None, included_lexical_unit_nodes=None, excluded_lexical_unit_nodes=None, skip_artificial_synsets=True)
+     |      Export plWordNet as graph.
+     |      
+     |      In `GraphML <http://graphml.graphdrawing.org/>`_ format.
+     |      
+     |      Nodes of the graph are synsets and / or lexical units, and edges are
+     |      relation instances.
+     |      
+     |      For nodes, their numeric plWordNet IDs are set as their XML element
+     |      IDs.
+     |      
+     |      **NOTE:** Nodes that have no inbound or outbound edges are dropped from
+     |      the graph.
+     |      
+     |      Nodes and edges have attributes, as GraphML defines them. For nodes,
+     |      attributes are public properties of :class:`SynsetBase` or
+     |      :class:`LexicalUnitBase` (aside from ``relations``, which would be
+     |      useless in a graph, and ``id``, which becomes the XML ID of a node).
+     |      Edges have two attributes:
+     |      
+     |      * **type**: Either ``relation``, for edges that represent plWordNet
+     |        relation instances, or ``unit_and_synset`` for edges between synset
+     |        nodes and nodes of lexical units that belong to the synset. The
+     |        latter appear only in *mixed* graph.
+     |      * **name**: If **type** is ``relation``, then this is the full name
+     |        of the relation (see :class:`RelationInfoBase`). If **type** is
+     |        ``unit_and_synset``, it is one of constant values: ``has_unit`` if
+     |        the edge is directed from synset to unit, or ``in_synset``, for edges
+     |        directed from unit to synset.
+     |      
+     |      ``out_file`` is a writable file-like object to which the GraphML output
+     |      will be written.
+     |      
+     |      ``graph_type`` is one of three constant string values: ``synset``,
+     |      ``lexical_unit`` or ``mixed``. Synset graph contains only synset
+     |      nodes and relations, lexical unit graph contains only lexical unit
+     |      nodes and relations, and mixed graph contains all of the former, as
+     |      well as additional edges that map lexical units to synsets they belong
+     |      to.
+     |      
+     |      If ``include_attributes`` is ``True``, then all synset and / or lexical
+     |      unit attributes will be included. By default, attributes are not
+     |      included to shrink the written file. Note, that if any of
+     |      ``(included/excluded)_(synset/lexical_unit)_attributes`` parameters is
+     |      passed, inclusion of attributes will be controlled by them and the
+     |      value of ``include_attributes`` is ignored.
+     |      
+     |      If ``prefix_ids`` is ``True``, then ID of each node will be prefixed
+     |      with the type: ``synset-`` or ``lexical_unit-``. By default, it's
+     |      not done, unless ``graph_type`` is ``mixed``, in which case this
+     |      parameter is ignored and ID prefixes are enforced.
+     |      
+     |      ``included_synset_attributes`` and ``excluded_synset_attributes`` are
+     |      containers of synset attribute names, selecting the values which should
+     |      or should not be included with synset nodes.
+     |      
+     |      ``included_lexical_unit_attributes`` and
+     |      ``excluded_lexical_unit_attributes`` are the same way as the above,
+     |      but for attributes of lexical units.
+     |      
+     |      ``included_synset_relations`` and ``excluded_synset_relations`` are
+     |      containers of synset relation type identifiers (see
+     |      :class:`RelationInfoBase`), selecting synset relation types whose
+     |      instances should or should not be included in the graph. By default,
+     |      all relation types are included.
+     |      
+     |      ``included_lexical_unit_relations`` and
+     |      ``excluded_lexical_unit_relations`` are the same was as the above, but
+     |      for lexical relation types.
+     |      
+     |      ``included_synset_nodes`` and ``excluded_synset_nodes`` are containers
+     |      for IDs of synset that should or should not be included as nodes in the
+     |      graph. If a node is not included, all edges that start or end in it are
+     |      also excluded. By default, all non-artificial synsets are included.
+     |      
+     |      ``included_lexical_unit_nodes`` and ``excluded_lexical_unit_nodes`` are
+     |      the same way as the above, but for lexical units.
+     |      
+     |      If ``skip_artificial_synsets`` is ``True`` (the default), then
+     |      artificial synsets are excluded from the graph, and edges connecting to
+     |      them are reconnected to "skip over" them, as described for
+     |      :meth:`.synset_relation_edges`.
+     |      
+     |      **Note:** while this method accepts all of the above parameters at
+     |      all times, parameters relating to synsets are ignored if ``graph_type``
+     |      is ``lexical_unit``, and parameters relating to lexical units are
+     |      ignored if ``graph_type`` is ``synset``.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |  
+     |  from_dump(dump) from abc.ABCMeta
+     |      Create new instance from a dump of cached internal representation.
+     |      
+     |      The dump file must have been created by :meth:`.from_reader` of the
+     |      same :class:`PLWordNetBase` subclass and schema version.
+     |  
+     |  from_reader(reader, dump_to=None) from abc.ABCMeta
+     |      Create new instance from a source reader.
+     |      
+     |      Optionally saving it in an internal representation format in
+     |      another file.
+     |      
+     |      ``reader`` is any iterable that yields node instances:
+     |      :class:`~plwn.readers.nodes.SynsetNode`,
+     |      :class:`~plwn.readers.nodes.LexicalUnitNode` and
+     |      :class:`~plwn.readers.nodes.RelationTypeNode`.
+     |      
+     |      ``dump_to`` is a path to a (non-existing) file where data
+     |      form ``reader`` will be stored to be to be loaded later.
+     |      If not passed, then the data won't be cached in any file, requiring
+     |      to be read again using :meth:`.from_reader`.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __abstractmethods__ = frozenset({'lexical_relation_edges', 'lexical_un...
+    
+    class RelationEdge(builtins.tuple)
+     |  RelationEdge(source, relation, target)
+     |  
+     |  RelationEdge(source, relation, target)
+     |  
+     |  Method resolution order:
+     |      RelationEdge
+     |      builtins.tuple
+     |      builtins.object
+     |  
+     |  Methods defined here:
+     |  
+     |  __getnewargs__(self)
+     |      Return self as a plain tuple.  Used by copy and pickle.
+     |  
+     |  __repr__(self)
+     |      Return a nicely formatted representation string
+     |  
+     |  _asdict(self)
+     |      Return a new dict which maps field names to their values.
+     |  
+     |  _replace(self, /, **kwds)
+     |      Return a new RelationEdge object replacing specified fields with new values
+     |  
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |  
+     |  _make(iterable) from builtins.type
+     |      Make a new RelationEdge object from a sequence or iterable
+     |  
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |  
+     |  __new__(_cls, source, relation, target)
+     |      Create new instance of RelationEdge(source, relation, target)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  source
+     |      Alias for field number 0
+     |  
+     |  relation
+     |      Alias for field number 1
+     |  
+     |  target
+     |      Alias for field number 2
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  _field_defaults = {}
+     |  
+     |  _fields = ('source', 'relation', 'target')
+     |  
+     |  _fields_defaults = {}
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.tuple:
+     |  
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |  
+     |  __contains__(self, key, /)
+     |      Return key in self.
+     |  
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |  
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |  
+     |  __getattribute__(self, name, /)
+     |      Return getattr(self, name).
+     |  
+     |  __getitem__(self, key, /)
+     |      Return self[key].
+     |  
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |  
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |  
+     |  __iter__(self, /)
+     |      Implement iter(self).
+     |  
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |  
+     |  __len__(self, /)
+     |      Return len(self).
+     |  
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |  
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |  
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |  
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |  
+     |  count(self, value, /)
+     |      Return number of occurrences of value.
+     |  
+     |  index(self, value, start=0, stop=9223372036854775807, /)
+     |      Return first index of value.
+     |      
+     |      Raises ValueError if the value is not present.
+    
+    class RelationInfoBase(builtins.object)
+     |  Encapsulates information associated with a relation type.
+     |  
+     |  The primary purpose of this class is to serve as a single object
+     |  consolidating all possible ways a relation type can be referred to.
+     |  
+     |  In general, plWordNet uses *parent* and *child* relation names. Child
+     |  relations are those that have actual instances between synsets and lexical
+     |  units. Parent relations only exist to group child relations together; child
+     |  relation names need to be only unique within the group of their parent
+     |  relation, while parent relations must be globally unique.
+     |  
+     |  For example, there are two relations named "część" ("part"); one being a
+     |  child of "meronimia" ("meronymy"), and another a child of "holonimia"
+     |  ("holonymy").
+     |  
+     |  Some relation types have no parent; they behave like child relations, but
+     |  their names need to be unique on par with parent relations.
+     |  
+     |  plWordNet also stores shorter aliases for most of the relation types,
+     |  for example "hipo" for "hiponimia" ("hyponymy").
+     |  
+     |  There are four ways to refer to relations wherever a relation identifier
+     |  is accepted (usually the argument is named ``relation_id``):
+     |  
+     |  * Full name, in format ``<parent name>/<child name>`` (or just
+     |    ``<child name>`` if the relation has no parent).
+     |  * One of the shorter aliases mentioned above. This is checked before
+     |    attempting to resolve relation names. Aliases must be globally unique.
+     |  * A parent name on its own. This resolves to all children of the parent
+     |    relation. Note, that it's not always valid to pass a name that resolves
+     |    to multiple relations;
+     |    :exc:`~plwn.exceptions.AmbiguousRelationTypeException` is raised in such
+     |    cases.
+     |  * Finally, a :class:`RelationInfoBase` instance may be used instead of
+     |    a string, standing for the child relation it represents.
+     |  
+     |  Note, that parent relations don't have corresponding
+     |  :class:`RelationInfoBase` instance.
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |      Return self==value.
+     |  
+     |  __ge__(self, other)
+     |      Return self>=value.
+     |  
+     |  __gt__(self, other)
+     |      Return self>value.
+     |  
+     |  __hash__(self)
+     |      Return hash(self).
+     |  
+     |  __le__(self, other)
+     |      Return self<=value.
+     |  
+     |  __lt__(self, other)
+     |      Return self<value.
+     |  
+     |  __ne__(self, other)
+     |      Return self!=value.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  __str__(self)
+     |      Return str(self).
+     |  
+     |  eqv(self, other)
+     |      Check if ``other`` is an equivalent representation.
+     |      
+     |      Either an equal :class:`RelationInfoBase` object or
+     |      a relation identifier that refers to this object.
+     |      
+     |      This is less strict than the equality operator, which only checks for
+     |      equal :class:`RelationInfoBase` instances.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Class methods defined here:
+     |  
+     |  format_name(parent_name, child_name) from abc.ABCMeta
+     |      Format and return a full name out of parent and child name strings.
+     |      
+     |      ``parent_name`` may be ``None``, which will just return ``child_name``,
+     |      as relations without parents are fully represented just by their name.
+     |  
+     |  split_name(full_name) from abc.ABCMeta
+     |      Split a full name into a ``(<parent name>, <child name>)`` pair.
+     |      
+     |      ``parent_name`` may be ``None`` if :attr:`.SEP` doesn't appear in the
+     |      full name.
+     |      
+     |      However, if :attr:`.SEP` appears more than once in ``full_name``, a
+     |      ``ValueError`` will be raised.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties defined here:
+     |  
+     |  aliases
+     |      Tuple of all aliases the relation can be referred to by.
+     |  
+     |  kind
+     |      One of enumerated constants of :class:`~plwn.enums.RelationKind`.
+     |      
+     |      Denotes it's a synset or lexical relation.
+     |  
+     |  name
+     |      String name of the relation.
+     |  
+     |  parent
+     |      String name of the parent relation to this one.
+     |      
+     |      May be ``None`` if the relation has no parent.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  SEP = '/'
+     |  
+     |  __abstractmethods__ = frozenset({'aliases', 'kind', 'name', 'parent'})
+    
+    class SynsetBase(builtins.object)
+     |  Encapsulates data associated with a plWordNet synset.
+     |  
+     |  Synset contains lexical units that have the same meaning (ie. synonyms).
+     |  Most of plWordNet relations are between meanings, hence the need to group
+     |  lexical units into synsets.
+     |  
+     |  For purposes of ordering, a :class:`SynsetBase` object is uniquely
+     |  identified by its "head": the first of the lexical units it contains.
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |      Return self==value.
+     |  
+     |  __ge__(self, other)
+     |      Return self>=value.
+     |  
+     |  __gt__(self, other)
+     |      Return self>value.
+     |  
+     |  __hash__(self)
+     |      Return hash(self).
+     |  
+     |  __le__(self, other)
+     |      Return self<=value.
+     |  
+     |  __lt__(self, other)
+     |      Return self<value.
+     |  
+     |  __ne__(self, other)
+     |      Return self!=value.
+     |  
+     |  __repr__(self)
+     |      Return repr(self).
+     |  
+     |  __str__(self)
+     |      Return str(self).
+     |  
+     |  related(self, relation_id=None, skip_artificial=True)
+     |      Get an iterable of :class:`SynsetBase` instances.
+     |      
+     |      That are connected to this synset by outbound edges of
+     |      synset relation type identified by ``relation_id``.
+     |      
+     |      ``relation_id`` can be any synset relation type identifier (see
+     |      :class:`RelationInfoBase`), a collection of relation types identifiers,
+     |      or ``None``, in which case synsets related to this one by any relation
+     |      are selected.
+     |      
+     |      Note, that distinction between any relations that fit the
+     |      ``relation_id`` query is lost. Use :meth:`.related_pairs` if it's
+     |      needed.
+     |      
+     |      Raises :exc:`~plwn.exceptions.InvalidRelationTypeException` if
+     |      (any of) ``relation_id`` does not refer to an existing synset relation
+     |      type.
+     |      
+     |      If ``skip_artificial`` is ``True`` (the default) artificial synsets
+     |      related to this one are "skipped over", as described for
+     |      :meth:`PLWordNetBase.synset_relation_edges`.
+     |  
+     |  related_pairs(self, relation_id=None, skip_artificial=True)
+     |      Like :meth:`.related`.
+     |      
+     |      But return an iterable of pairs
+     |      ``(<relation info>, <relation target synset>)``.
+     |  
+     |  short_str(self)
+     |      Shorter version of synset's string form (``__str__``).
+     |      
+     |      That displays only the first lexical unit.
+     |  
+     |  to_dict(self, include_related=True, include_units_data=True)
+     |      Create a JSON-compatible dictionary.
+     |      
+     |      With all public properties of the synset.
+     |      
+     |      Enums are converted to their values and all collections are converted
+     |      to tuples.
+     |      
+     |      Property :attr:`.relations` is omitted, as it would be redundant when
+     |      all related synsets can be enumerated when ``include_related`` is
+     |      ``True``. Some additional members are also present in the dictionary:
+     |      
+     |      * ``str``: The string representation of the synset (defined by
+     |        ``__str__`` override on :class:`SynsetBase`).
+     |      * ``units``: Listing (as a tuple) of units belonging to the synset (in
+     |        the same ordering as :attr:`.lexical_units`), as pairs of
+     |        ``(<unit id>, <unit string form>)``.
+     |      
+     |      If ``include_related`` is ``True`` (the default), the dictionary will
+     |      contain an additional ``related`` member, representing synsets related
+     |      to this one, in the following format::
+     |      
+     |          {
+     |              <synset relation full name>: (
+     |                  (<relation target id>, <relation target string form>),
+     |                  ...
+     |              ),
+     |              ...
+     |          }
+     |      
+     |      If ``include_units_data`` is ``True`` (the default), the ``units``
+     |      member will contain results of invocation of
+     |      :meth:`LexicalUnitBase.to_dict` for the synset's units,
+     |      instead of pairs described above. In this case, the value of
+     |      ``include_related`` parameter is passed on to
+     |      :meth:`LexicalUnitBase.to_dict`.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties defined here:
+     |  
+     |  definition
+     |      Textual description of the synset's meaning.
+     |      
+     |      May be ``None``.
+     |      
+     |      In plWordNet, most definitions are stored as
+     |      :attr:`LexicalUnitBase.definition`. Synset definitions are present
+     |      mostly for English synsets.
+     |  
+     |  id
+     |      The internal, numeric identifier of the synset in plWordNet.
+     |      
+     |      It is unique among all synsets.
+     |      
+     |      If this identifier is passed to :meth:`PLWordNetBase.synset_by_id`, it
+     |      would return this :class:`SynsetBase` object.
+     |  
+     |  is_artificial
+     |      Boolean value informing if the synset is an artificial one.
+     |      
+     |      Artificial synsets carrying no linguistic
+     |      meaning, but introduced as a method of grouping synsets within the
+     |      structure of plWordNet.
+     |      
+     |      For most uses, artificial synsets should be ignored.
+     |  
+     |  is_english
+     |      Check whether all units are English.
+     |  
+     |  is_polish
+     |      Check whether all units are Polish.
+     |  
+     |  lexical_units
+     |      Tuple of :class:`LexicalUnitBase` objects.
+     |      
+     |      Representing lexical units contained in the synset.
+     |      Ordering of units within the tuple is arbitrary, but constant.
+     |      
+     |      At least one lexical unit is always present in every synset, so
+     |      ``lexical_units[0]`` is always valid and selects the synset's "head".
+     |  
+     |  pos
+     |      Returns PoS of the synset units.
+     |      
+     |      Raises :exc:`ValueError` if units have many different PoS.
+     |  
+     |  relations
+     |      Tuple of :class:`RelationInfoBase` instances.
+     |      
+     |      Containing types of distinct relations that have outbound
+     |      edges from this synset.
+     |      
+     |      Relations are returned in an arbitrary order.
+     |      
+     |      The tuple is special: methods for checking membership accept all
+     |      possible representations of a relation type (see
+     |      :meth:`RelationInfoBase.eqv`).
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __abstractmethods__ = frozenset({'definition', 'id', 'is_artificial', ...
+
+DATA
+    __all__ = ('PLWordNetBase', 'SynsetBase', 'LexicalUnitBase', 'Relation...
+
+FILE
+    /home/kornel/Projects/NLP/nlp_zad2/venv_nlp2/lib/python3.8/site-packages/plwn_api-0.24-py3.8.egg/plwn/bases.py
+
+
