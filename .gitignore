@@ -1,5 +1,8 @@
 venv_nlp2
 default_model
+*.xml
+*.vec
+MSimLex999_Polish.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
