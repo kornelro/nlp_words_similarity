@@ -1,6 +1,11 @@
 venv_nlp2
 default_model
-data/
+*.xml
+*.vec
+MSimLex999_Polish.txt
+
+.vscode/
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
