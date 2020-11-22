@@ -86,7 +86,7 @@ def wu_palmer(node_1, node_2):
     lso = lowest_common_ancestor(subG, node_1, node2)
 
     a = 2 * len(nx.shortest_path(subG, 'root', lso))
-    b = len(nx.shortest_path(node_1, lso)) + len(nx.shortest_path(node_2, lso)) + a
+    b = len(nx.shortest_path(subG.to_undirected(), node_1, lso)) + len(nx.shortest_path(subG.to_undirected(), node_2, lso)) + a
 
     return a/b
 
@@ -128,19 +128,27 @@ filtered_simlex = simlex[(simlex['word1'].isin(words_in_graph)) & (simlex['word2
 
 
 def add_wp(simlex_row):
-    node_1 = ids_dict[simlex_row['word1']]
-    node_2 = ids_dict[simlex_row['word2']]
+    node_1 = str(ids_dict[simlex_row['word1']])
+    node_2 = str(ids_dict[simlex_row['word2']])
 
-    simlex_row['wu_palmer'] = wu_palmer(node_1, node_2)
+    try:
+        simlex_row['wu_palmer'] = wu_palmer(node_1, node_2)
+    except Exception as e:
+        print(e)
+        simlex_row['wu_palmer'] = None
 
     return simlex_row
 
 
 def add_lcn(simlex_row):
-    node_1 = ids_dict[simlex_row['word1']]
-    node_2 = ids_dict[simlex_row['word2']]
+    node_1 = str(ids_dict[simlex_row['word1']])
+    node_2 = str(ids_dict[simlex_row['word2']])
 
-    simlex_row['leacon'] = lc_normalized_path(node_1, node_2)
+    try:
+        simlex_row['leacon'] = lc_normalized_path(node_1, node_2)
+    except Exception as e:
+        print(e)
+        simlex_row['leacon'] = None
 
     return simlex_row
 
